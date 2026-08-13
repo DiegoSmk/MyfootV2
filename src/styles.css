@@ -1,0 +1,56 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  overflow: hidden;
+  font-family: system-ui, -apple-system, sans-serif;
+  background: #000;
+}
+
+#app {
+  width: 100vw;
+  height: 100vh;
+}
+
+#app canvas {
+  display: block;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  background: #000;
+}
+
+#hud {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  pointer-events: none;
+  padding: 12px;
+  z-index: 10;
+}
+
+.hud-box {
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  padding: 10px 14px;
+  border-radius: 8px;
+  display: inline-flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 13px;
+  backdrop-filter: blur(4px);
+}
+
+.hud-box strong {
+  font-size: 15px;
+  color: #8bc34a;
+}
+
+.hud-note {
+  opacity: 0.6;
+  font-size: 11px;
+}
