@@ -37,6 +37,21 @@ const NPC_SPRITES: Record<string, string> = {
 const STAND_FRAME: Record<Facing, number> = { down: 0, up: 1, left: 2, right: 2 };
 const WALK_FRAME: Record<Facing, number> = { down: 3, up: 4, left: 5, right: 5 };
 
+// Sprites that get a portrait frame in the dialogue box (items don't)
+const PORTRAIT_SPRITES = new Set([
+  'oak',
+  'mom',
+  'girl',
+  'fisher',
+  'daisy',
+  'blue',
+  'scientist',
+  'youngster',
+  'hiker',
+  'cooltrainer_m',
+  'red',
+]);
+
 export class Game {
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
@@ -372,29 +387,68 @@ export class Game {
     this.ctx.restore();
   }
 
+  private drawGbcBox(x: number, y: number, w: number, h: number): void {
+    // pokered dialogue box: cream fill, blue-gray border, offset shadow
+    this.ctx.fillStyle = 'rgba(88, 88, 152, 0.45)';
+    this.ctx.fillRect(x + 4, y + 4, w, h);
+    this.ctx.fillStyle = '#f8f8f8';
+    this.ctx.fillRect(x, y, w, h);
+    this.ctx.strokeStyle = '#585898';
+    this.ctx.lineWidth = 2;
+    this.ctx.strokeRect(x + 1, y + 1, w - 2, h - 2);
+    this.ctx.strokeStyle = '#7878b8';
+    this.ctx.strokeRect(x + 3, y + 3, w - 6, h - 6);
+  }
+
   private drawDialogue(): void {
     if (!this.dialogue) return;
     const vw = window.innerWidth / this.scale;
     const vh = window.innerHeight / this.scale;
-    const bw = Math.min(vw - 24, 320);
-    const bx = (vw - bw) / 2;
-    const by = vh - 96;
+    const bw = vw - 16;
+    const bx = 8;
+    const bh = 80;
+    const by = vh - bh - 8;
     this.ctx.save();
-    this.ctx.fillStyle = 'rgba(248, 248, 248, 0.96)';
-    this.ctx.strokeStyle = '#585898';
-    this.ctx.lineWidth = 2;
-    this.ctx.beginPath();
-    this.ctx.roundRect(bx, by, bw, 76, 8);
-    this.ctx.fill();
-    this.ctx.stroke();
+    this.drawGbcBox(bx, by, bw, bh);
+
+    const portrait = PORTRAIT_SPRITES.has(this.dialogue.sprite);
+    let tx = bx + 16;
+    if (portrait) {
+      // portrait frame with the NPC standing sprite
+      const frame = 48;
+      const px = bx + 12;
+      const py = by + 12;
+      this.ctx.fillStyle = '#d0d0d8';
+      this.ctx.fillRect(px, py, frame, frame);
+      this.ctx.strokeStyle = '#585898';
+      this.ctx.lineWidth = 2;
+      this.ctx.strokeRect(px + 1, py + 1, frame - 2, frame - 2);
+      const img = this.spriteImage(this.dialogue.sprite);
+      if (img.complete && img.naturalWidth > 0) {
+        this.ctx.drawImage(img, 0, 0, 16, 16, px + 8, py + 8, 32, 32);
+      }
+      tx = px + frame + 16;
+    }
+
+    const maxW = Math.max(40, bx + bw - 16 - tx);
     this.ctx.fillStyle = '#101030';
-    this.ctx.font = '13px "Press Start 2P", monospace';
+    this.ctx.font = '12px "Press Start 2P", monospace';
     this.ctx.textBaseline = 'top';
-    this.wrapText(this.dialogue.text, bx + 14, by + 14, bw - 28, 13, 4);
-    this.ctx.fillStyle = '#101030';
-    this.ctx.font = '10px "Press Start 2P", monospace';
-    this.ctx.fillText('ESPACE/ENTER', bx + bw - 96, by + 60);
+    this.wrapText(this.dialogue.text, tx, by + 16, maxW, 13, 4);
+
+    // "continue" arrow
+    this.drawTriangle(bx + bw - 22, by + bh - 20, 10, '#101030');
     this.ctx.restore();
+  }
+
+  private drawTriangle(x: number, y: number, size: number, color: string): void {
+    this.ctx.fillStyle = color;
+    this.ctx.beginPath();
+    this.ctx.moveTo(x, y);
+    this.ctx.lineTo(x + size, y);
+    this.ctx.lineTo(x + size / 2, y + size);
+    this.ctx.closePath();
+    this.ctx.fill();
   }
 
   private wrapText(text: string, x: number, y: number, maxW: number, lineH: number, maxLines: number): void {

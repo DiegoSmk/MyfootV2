@@ -33,24 +33,42 @@ body {
   z-index: 10;
 }
 
+.hud-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.hud-box,
+.map-box {
+  background: #f8f8f8;
+  color: #101030;
+  border: 3px solid #585898;
+  box-shadow: 4px 4px 0 rgba(88, 88, 152, 0.35);
+  image-rendering: pixelated;
+}
+
 .hud-box {
-  background: rgba(0, 0, 0, 0.55);
-  color: #fff;
-  padding: 10px 14px;
-  border-radius: 8px;
+  padding: 8px 12px;
   display: inline-flex;
   flex-direction: column;
-  gap: 2px;
-  font-size: 13px;
-  backdrop-filter: blur(4px);
+  gap: 6px;
 }
 
 .hud-box strong {
-  font-size: 15px;
-  color: #8bc34a;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 13px;
+  color: #101030;
 }
 
 .hud-note {
-  opacity: 0.6;
   font-size: 11px;
+  color: #585898;
+}
+
+.map-box {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 13px;
+  padding: 9px 14px;
 }
